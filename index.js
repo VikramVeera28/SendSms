@@ -17,17 +17,24 @@ const client = twilio(accountSid, authToken);
 app.post('/api/send-sms', async (req, res) => {
   const { mobile, body } = req.body;
 
+  if (!mobile || !body) {
+    return res.status(400).json({ success: false, error: 'Missing mobile or body' });
+  }
+
   try {
     const message = await client.messages.create({
       from: '+15076205292',
       to: `+91${mobile}`,
       body,
     });
+    console.log('Message sent:', message);
     res.status(200).json({ success: true, message });
   } catch (err) {
+    console.error('Twilio Error:', err); // Log the detailed Twilio error
     res.status(500).json({ success: false, error: err.message });
   }
 });
+
 
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
